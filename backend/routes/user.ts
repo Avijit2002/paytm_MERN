@@ -1,33 +1,13 @@
 import { Router } from "express";
-import { z } from "zod";
 import { responseStatus } from "../utils/statusCode"
 import jwt from "jsonwebtoken"
 import 'dotenv/config'
 import { User } from "../db";
+import { zodSigninSchema, zodSignupSchema,zodUpdateSchema } from "../utils/zod/userRoute";
 
 const JWT_SECRET = process.env.JWT_SECRET
 
 const router = Router()
-
-const zodSignupSchema = z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    password: z.string().min(6, { message: "Must be 6 or more characters long" }),
-    userName: z.string()
-        .min(3, { message: "Must be 3 or more characters long" })
-        .max(10, { message: "Must be 10 or less characters" })
-});
-
-const zodSigninSchema = z.object({
-    username: z.string(),
-    password: z.string()
-})
-
-const zodUpdateSchema = z.object({
-    username: z.string(),
-    password: z.string(),
-    newPassword: z.string().min(6, { message: "Must be 6 or more characters long" }),
-})
 
 
 
