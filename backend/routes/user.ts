@@ -19,9 +19,17 @@ const zodSignupSchema = z.object({
 });
 
 const zodSigninSchema = z.object({
-    userName: z.string(),
+    username: z.string(),
     password: z.string()
 })
+
+const zodUpdateSchema = z.object({
+    username: z.string(),
+    password: z.string(),
+    newPassword: z.string().min(6, { message: "Must be 6 or more characters long" }),
+})
+
+
 
 router.post('/signup', async (req, res, next) => {
     //const { firstName, lastName, userName, password } = req.body
@@ -78,13 +86,14 @@ router.post('/signup', async (req, res, next) => {
     }
 })
 
-router.post('/signin', async (req, res) => {
+router.post('/signin', async (req, res, next) => {
     // const username = req.body.username;
     // const password = req.body.password;
     const body = req.body
 
     const validation = zodSigninSchema.safeParse(body)
     if (!validation.success) {
+        //console.log(validation.error)
         return res.status(responseStatus.incorrectInput).json({
             message: "Incorrect inputs"
         })
@@ -114,11 +123,43 @@ router.post('/signin', async (req, res) => {
             token: token
         })
     } catch (error) {
-
+        console.log(error)
+        next(error)
     }
 })
 
-router.post('/update', (req, res) => {
+router.post('/update', async (req, res) => {
+    const body = req.body;
+
+    const validation = zodUpdateSchema.safeParse(body)
+    if(!validation.success){
+        //console.log(validation.error)
+        return res.status(responseStatus.incorrectInput).json({
+            message: "Incorrect inputs"
+        })
+    }
+
+    const dbUser = await User.findOne({
+        userName: body.username,
+        password: body.password
+    })
+    if (!dbUser?._id) {
+        return res.status(responseStatus.incorrectInput).json({
+            message: "Incorrect password. Not allowed!"
+        })
+    }
+
+    const update = await User.updateOne({
+        _id: dbUser._id
+    },{
+        password: body.newPassword
+    })
+
+    res.status(responseStatus.success).json({
+        message: "Password changed successfully",
+    })
+
+
 })
 
 
