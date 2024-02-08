@@ -3,26 +3,19 @@ import { responseStatus } from "../utils/statusCode"
 import jwt from "jsonwebtoken"
 import 'dotenv/config'
 import { User } from "../db";
-import { zodSigninSchema, zodSignupSchema,zodUpdateSchema } from "../utils/zod/userRoute";
+import { zodSigninSchema, zodSignupSchema, zodUpdateSchema } from "../utils/zod/userRoute";
 
 const JWT_SECRET = process.env.JWT_SECRET
 
 const router = Router()
 
 
-
 router.post('/signup', async (req, res, next) => {
     //const { firstName, lastName, userName, password } = req.body
-    const firstName = req.body.firstname;
-    const lastName = req.body.lastname;
-    const userName = req.body.username;
-    const password = req.body.password;
-
+    const body = req.body;
 
     //Zod validation
-    const validation = zodSignupSchema.safeParse({
-        firstName, lastName, userName, password
-    })
+    const validation = zodSignupSchema.safeParse(body)
     if (!validation.success) {
         //console.log(validation.error)
         res.status(responseStatus.incorrectInput).json({
@@ -31,10 +24,9 @@ router.post('/signup', async (req, res, next) => {
         return
     }
 
-
     try {
         //creating user in DB
-        const dbUser = await User.findOne({ userName })
+        const dbUser = await User.findOne({ userName: body.username })
         if (dbUser?._id) {
             return res.status(responseStatus.incorrectInput).json({
                 message: "Email already taken / Incorrect inputs"
@@ -42,7 +34,10 @@ router.post('/signup', async (req, res, next) => {
         }
 
         const user = await User.create({
-            firstName, lastName, password, userName
+            firstName: body.firstname,
+            lastName: body.lastname,
+            password: body.password,
+
         })
         if (!user._id) {
             throw new Error("User creation failed")
@@ -108,11 +103,11 @@ router.post('/signin', async (req, res, next) => {
     }
 })
 
-router.post('/update', async (req, res) => {
+router.post('/update', async (req, res,next) => {
     const body = req.body;
 
     const validation = zodUpdateSchema.safeParse(body)
-    if(!validation.success){
+    if (!validation.success) {
         //console.log(validation.error)
         return res.status(responseStatus.incorrectInput).json({
             message: "Incorrect inputs"
@@ -129,16 +124,22 @@ router.post('/update', async (req, res) => {
         })
     }
 
-    const update = await User.updateOne({
-        _id: dbUser._id
-    },{
-        password: body.newPassword
-    })
+    try {
 
-    res.status(responseStatus.success).json({
-        message: "Password changed successfully",
-    })
+        const update = await User.updateOne({
+            _id: dbUser._id
+        }, {
+            password: body.newPassword
+        })
 
+        res.status(responseStatus.success).json({
+            message: "Password changed successfully",
+        })
+
+    } catch (error) {
+        console.log(error)
+        next(error)
+    }
 
 })
 
