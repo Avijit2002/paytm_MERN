@@ -11,9 +11,9 @@ const router = Router()
 
 
 router.post('/signup', async (req, res, next) => {
-    //const { firstName, lastName, userName, password } = req.body
-    const body = req.body;
-
+    //const {firstName, lastName, userName, password } = req.body
+    const body = req.body
+    
     //Zod validation
     const validation = zodSignupSchema.safeParse(body)
     if (!validation.success) {

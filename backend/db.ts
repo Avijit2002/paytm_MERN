@@ -1,6 +1,13 @@
 import mongoose from "mongoose"
+import 'dotenv/config'
 
-mongoose.connect('mongodb+srv://admin:2236@cluster0.q9owrbx.mongodb.net/paytm')
+const URI = process.env.MONGODB_URI
+if(!URI){
+    console.log("DB URI problem")
+    throw new Error("DB URI problem")
+}
+
+mongoose.connect(URI)
     .then(() => console.log("DB connected"))
     .catch(err => console.log(err))
 
