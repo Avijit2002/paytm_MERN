@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express,{ Router } from "express";
 import { responseStatus } from "../utils/statusCode"
 import jwt from "jsonwebtoken"
 import 'dotenv/config'
@@ -9,6 +9,10 @@ import authmiddleware from "../middlewares/authmiddleware";
 const JWT_SECRET = process.env.JWT_SECRET
 
 const router = Router()
+
+interface authRequest extends express.Request{
+    userId?:any
+}
 
 
 router.post('/signup', async (req, res, next) => {
@@ -104,29 +108,27 @@ router.post('/signin', async (req, res, next) => {
     }
 })
 
-router.post('/update',authmiddleware, async (req, res,next) => {
+router.put('/update',authmiddleware, async (req:authRequest, res,next) => {
     const body = req.body;
-    console.log(body)
+    //console.log(body)
     const validation = zodUpdateSchema.safeParse(body)
 
     if (!validation.success) {
-        console.log(validation.error)
+        //console.log(validation.error)
         return res.status(responseStatus.incorrectInput).json({
             message: "Incorrect inputs"
         })
     }
 
     try {
-
-        const update = await User.findByIdAndUpdate({
-            _id: body.userId
-        }, {
-            password: body.newPassword
-        })
+        //console.log(req.userId)
+        const update = await User.updateOne( {
+            _id: req.userId
+        },body)
         console.log(update)
 
         res.status(responseStatus.success).json({
-            message: "Password changed successfully",
+            message: "Info updated successfully",
         })
 
     } catch (error) {
@@ -135,8 +137,5 @@ router.post('/update',authmiddleware, async (req, res,next) => {
     }
 
 })
-
-
-
 
 export default router

@@ -15,6 +15,7 @@ export const zodSigninSchema = z.object({
 })
 
 export const zodUpdateSchema = z.object({
-    password: z.string(),
-    newPassword: z.string().min(6, { message: "Must be 6 or more characters long" }),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    password: z.string().min(6, { message: "Must be 6 or more characters long" }).optional(),
 })
