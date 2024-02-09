@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 import 'dotenv/config'
 import { User } from "../db";
 import { zodSigninSchema, zodSignupSchema, zodUpdateSchema } from "../utils/zod/userRoute";
+import authmiddleware from "../middlewares/authmiddleware";
 
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -45,7 +46,7 @@ router.post('/signup', async (req, res, next) => {
 
         //creating jwt token 
         if (!JWT_SECRET) {
-            throw new Error("JWT token undefined")
+            throw new Error("JWT secret undefined")
         }
         let token
         token = jwt.sign({ userId: user._id }, JWT_SECRET);
@@ -103,34 +104,26 @@ router.post('/signin', async (req, res, next) => {
     }
 })
 
-router.post('/update', async (req, res,next) => {
+router.post('/update',authmiddleware, async (req, res,next) => {
     const body = req.body;
-
+    console.log(body)
     const validation = zodUpdateSchema.safeParse(body)
+
     if (!validation.success) {
-        //console.log(validation.error)
+        console.log(validation.error)
         return res.status(responseStatus.incorrectInput).json({
             message: "Incorrect inputs"
         })
     }
 
-    const dbUser = await User.findOne({
-        userName: body.username,
-        password: body.password
-    })
-    if (!dbUser?._id) {
-        return res.status(responseStatus.incorrectInput).json({
-            message: "Incorrect password. Not allowed!"
-        })
-    }
-
     try {
 
-        const update = await User.updateOne({
-            _id: dbUser._id
+        const update = await User.findByIdAndUpdate({
+            _id: body.userId
         }, {
             password: body.newPassword
         })
+        console.log(update)
 
         res.status(responseStatus.success).json({
             message: "Password changed successfully",
