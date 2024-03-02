@@ -19,3 +19,7 @@ export const zodUpdateSchema = z.object({
     lastName: z.string().optional(),
     password: z.string().min(6, { message: "Must be 6 or more characters long" }).optional(),
 })
+
+export type signupType = z.infer<typeof zodSignupSchema>
+export type signinType = z.infer<typeof zodSigninSchema>
+export type updateType = z.infer<typeof zodUpdateSchema>

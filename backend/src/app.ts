@@ -2,7 +2,7 @@ import express from "express"
 import cors from "cors"
 import type { ErrorRequestHandler } from "express";
 
-import {User,Admin} from "./db"
+//import { User, Admin } from "./db"
 import { responseStatus } from "./utils/statusCode";
 import rootRouter from "./routes"
 
@@ -12,7 +12,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-app.use('/api/v1',rootRouter)
+app.use('/api/v1', rootRouter)
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     console.log(err)

@@ -1,5 +1,5 @@
 {
     "watch": [ "./" ],
     "ext": "ts",
-    "exec": "kill -9 $(lsof -i:3000 -t) & ts-node ./app.ts"
+    "exec": "kill -9 $(lsof -i:3000 -t) & ts-node ./src/app.ts"
   }
