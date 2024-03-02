@@ -18,7 +18,7 @@ const JWT_SECRET = process.env.JWT_SECRET
 const router = Router()
 
 interface authRequest extends express.Request {
-    userId?: any
+    userId?: string
 }
 
 router.post('/signup', asyncFunction(async (req, res, next) => {
@@ -52,8 +52,20 @@ router.post('/signup', asyncFunction(async (req, res, next) => {
     const user = await prisma.users.create({
         data: body
     })
+
     if (!user.id) {
         throw new Error("User creation failed")
+    }
+
+    const account = await prisma.accounts.create({
+        data:{
+            balance: Math.random() *100,
+            userId: user.id
+        }
+    })
+
+    if (!account.id) {
+        throw new Error("User account creation failed")
     }
 
     //creating jwt token 
@@ -147,20 +159,45 @@ router.put('/update', authmiddleware, async (req: authRequest, res, next) => {
 
 })
 
-
-router.get('/bulk:query', authmiddleware, async (req: authRequest, res, next) => {
-    const query = req.params.query;
+// filtering users based on query, query can be 1st name, last name or username
+router.get('/bulk', authmiddleware, async (req: authRequest, res, next) => {
+    const query = req.query.filter as string;
     console.log(query)
     try {
-        const data = await prisma.users.findUnique({
+        const data = await prisma.users.findMany({
             where:{
-                username: query
+               OR:[
+                {
+                    username: {
+                        startsWith: query,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    firstname: {
+                        startsWith: query,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    lastname: {
+                        startsWith: query,
+                        mode: 'insensitive'
+                    }
+                }
+               ]
             }
         })
         console.log(data)
         res.status(responseStatus.success).json({
-            message: "succcess",
-            data: JSON.stringify(data)
+            message: "success",
+            data: data.map(x=>{
+                return {
+                    firstname: x.firstname,
+                    lastname: x.lastname,
+                    username: x.username
+                }
+            })
         })
 
     } catch (error) {
