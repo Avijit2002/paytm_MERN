@@ -28,3 +28,6 @@
 // 3) dotenv
 // 4) ts setup and nodemon config
 // 5) in async function we have to pass error to next function to react global error middleware
+//
+
+// 6) prisma .findUnique only works if we provide unique column data in where field
