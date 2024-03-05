@@ -2,7 +2,7 @@ import express, { Router } from "express";
 import authmiddleware from "../middlewares/authmiddleware";
 import { asyncFunction } from "../utils/asyncHandler";
 
-import { zodTransferSchema, transferType } from "../utils/zod/accountRoute";
+import { zodTransferSchema, transferType } from "@avijit2002/zodvalidationandtypes";
 
 import { PrismaClient } from "@prisma/client";
 import { responseStatus } from "../utils/statusCode";
@@ -32,12 +32,22 @@ router.get('/balance', authmiddleware, asyncFunction(async (req: authRequest, re
 
 
 router.post('/transfer', authmiddleware, asyncFunction(async (req: authRequest, res, next) => {
-    const body: transferType = req.body
+
+    const body: transferType = req.body;
+    //console.log(typeof(body.amount))  // string
+
+    // issue here  // 
+
+    // const body =JSON.parse(req.body) ;
+    // console.log(typeof(body.amount))
+    // body.amount = eval(body.amount)
+
+
     const userId = req.userId;
 
     const validation = zodTransferSchema.safeParse(body)
     if (!validation.success) {
-        //console.log(validation.error)
+        console.log(validation.error)
         return res.status(responseStatus.incorrectInput).json({
             message: "Incorrect inputs"
         })

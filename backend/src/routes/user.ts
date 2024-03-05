@@ -3,8 +3,8 @@ import { responseStatus } from "../utils/statusCode"
 import jwt from "jsonwebtoken"
 import 'dotenv/config'
 //import { User } from "../db";
-import { zodSigninSchema, zodSignupSchema, zodUpdateSchema } from "../utils/zod/userRoute";
-import { signupType, signinType, updateType } from "../utils/zod/userRoute";
+import { zodSigninSchema, zodSignupSchema, zodUpdateSchema } from "@avijit2002/zodvalidationandtypes";
+import { signupType, signinType, updateType } from "@avijit2002/zodvalidationandtypes";
 //import { successApiResponse } from "../utils/successResponse";
 import authmiddleware from "../middlewares/authmiddleware";
 import { asyncFunction } from "../utils/asyncHandler";
@@ -58,8 +58,8 @@ router.post('/signup', asyncFunction(async (req, res, next) => {
     }
 
     const account = await prisma.accounts.create({
-        data:{
-            balance: Math.random() *100,
+        data: {
+            balance: Math.random() * 100,
             userId: user.id
         }
     })
@@ -76,13 +76,14 @@ router.post('/signup', asyncFunction(async (req, res, next) => {
     token = jwt.sign({ userId: user.id }, JWT_SECRET);
 
     res.status(responseStatus.success).json({
+        success: true,
         message: "User created successfully",
         token: token
     })
     //successApiResponse(responseStatus.success, token)
 }))
 
-router.post('/signin', async (req, res, next) => {
+router.post('/signin', asyncFunction(async (req, res, next) => {
     // const username = req.body.username;
     // const password = req.body.password;
     const body: signinType = req.body
@@ -108,25 +109,22 @@ router.post('/signin', async (req, res, next) => {
         })
     }
 
-    try {
-        //creating jwt token 
-        if (!JWT_SECRET) {
-            throw new Error("JWT token undefined")
-        }
-        let token
-        token = jwt.sign({ userId: dbUser.id }, JWT_SECRET);
-
-        res.status(responseStatus.success).json({
-            message: "Signin successfully",
-            token: token
-        })
-    } catch (error) {
-        console.log(error)
-        next(error)
+    //creating jwt token 
+    if (!JWT_SECRET) {
+        throw new Error("JWT token undefined")
     }
-})
+    let token
+    token = jwt.sign({ userId: dbUser.id }, JWT_SECRET);
 
-router.put('/update', authmiddleware, async (req: authRequest, res, next) => {
+    res.status(responseStatus.success).json({
+        success: true,
+        message: "Signin successfully",
+        token: token
+    })
+
+}))
+
+router.put('/update', authmiddleware, asyncFunction(async (req: authRequest, res, next) => {
     const body: updateType = req.body;
     //console.log(body)
     const validation = zodUpdateSchema.safeParse(body)
@@ -138,35 +136,31 @@ router.put('/update', authmiddleware, async (req: authRequest, res, next) => {
         })
     }
 
-    try {
-        //console.log(req.userId)
-        const update = await prisma.users.update({
-            where: {
-                id: req.userId
-            },
-            data: body
-        })
-        console.log(update)
+    //console.log(req.userId)
+    const update = await prisma.users.update({
+        where: {
+            id: req.userId
+        },
+        data: body
+    })
+    console.log(update)
 
-        res.status(responseStatus.success).json({
-            message: "Info updated successfully",
-        })
+    res.status(responseStatus.success).json({
+        success: true,
+        message: "Info updated successfully",
+    })
 
-    } catch (error) {
-        console.log(error)
-        next(error)
-    }
 
-})
+
+}))
 
 // filtering users based on query, query can be 1st name, last name or username
-router.get('/bulk', authmiddleware, async (req: authRequest, res, next) => {
+router.get('/bulk', authmiddleware, asyncFunction(async (req: authRequest, res, next) => {
     const query = req.query.filter as string;
     console.log(query)
-    try {
-        const data = await prisma.users.findMany({
-            where:{
-               OR:[
+    const data = await prisma.users.findMany({
+        where: {
+            OR: [
                 {
                     username: {
                         startsWith: query,
@@ -185,26 +179,23 @@ router.get('/bulk', authmiddleware, async (req: authRequest, res, next) => {
                         mode: 'insensitive'
                     }
                 }
-               ]
+            ]
+        }
+    })
+    console.log(data)
+    res.status(responseStatus.success).json({
+        success: true,
+        data: data.map(x => {
+            return {
+                firstname: x.firstname,
+                lastname: x.lastname,
+                username: x.username
             }
         })
-        console.log(data)
-        res.status(responseStatus.success).json({
-            message: "success",
-            data: data.map(x=>{
-                return {
-                    firstname: x.firstname,
-                    lastname: x.lastname,
-                    username: x.username
-                }
-            })
-        })
+    })
 
-    } catch (error) {
-        console.log(error)
-        next(error)
-    }
 
-})
+
+}))
 
 export default router
