@@ -31,7 +31,7 @@ function Form({ type, handleSubmit, children }: formType) {
       footerButton = "Sign up";
       footerButtonLink = "/signup";
       break;
-    case "sign in":
+    case "send":
       heading = "Send Money";
       break;
     default:
@@ -49,7 +49,6 @@ function Form({ type, handleSubmit, children }: formType) {
         )}
 
         {children}
-
         
         <button className="text-xl mt-4 w-full bg-black font-semibold text-white py-4 rounded-lg hover:bg-gray-500">
           Submit

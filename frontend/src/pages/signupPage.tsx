@@ -1,9 +1,8 @@
 import { useState } from "react";
 
 import axios from "axios";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { zodSignupSchema } from "@avijit2002/zodvalidationandtypes";
 import { signupType } from "@avijit2002/zodvalidationandtypes";
 
@@ -46,20 +45,25 @@ function SignupPage() {
       });
       return;
     } else {
-      const res = await axios({
-        method: "post",
-        url: BACKEND_URL + "/api/v1/user/signup",
-        data: val.data,
-      });
-
-
-      if(res.data.success){
-        localStorage.setItem("token","Bearer "+ res.data.token)
-        toast(res.data.message)
-        navigate("/")
-      }else{
-        toast(res.data.message)
+      try {
+        const res = await axios({
+          method: "post",
+          url: BACKEND_URL + "/api/v1/user/signup",
+          data: val.data,
+        });
+  
+  
+        if(res.data.success){
+          localStorage.setItem("token","Bearer "+ res.data.token)
+          toast(res.data.message)
+          navigate("/")
+        }else{
+          toast.error(res.data.message)
+        }
+      } catch (error:any) {
+        toast.error(error.response.data.message);
       }
+      
 
       setErrors({
         firstname: "",
@@ -83,6 +87,7 @@ function SignupPage() {
 
   return (
     <div className="bg-gray-400 h-screen grid place-content-center">
+      <ToastContainer />
       <Form type="sign up" handleSubmit={handleSubmit}>
         <FormInput
           label="First name"
