@@ -16,17 +16,26 @@ interface authRequest extends express.Request {
 
 router.get('/balance', authmiddleware, asyncFunction(async (req: authRequest, res, next) => {
 
-    const account = await prisma.accounts.findMany({
+    const user = await prisma.users.findUnique({
         where: {
-            userId: req.userId
+            id: req.userId
+        },
+        select:{
+            id: true,
+            username:true,
+            accounts:{
+                select:{
+                    balance:true
+                }
+            }
         }
     })
 
-    console.log(account[0])
+    console.log(user)
 
     res.status(responseStatus.success).json({
-        message: "success",
-        balance: account[0].balance
+        success:true,
+        data:user
     })
 }))
 
@@ -143,6 +152,7 @@ router.post('/transfer', authmiddleware, asyncFunction(async (req: authRequest, 
     }
 
     return res.status(responseStatus.success).json({
+        success:true,
         message: "Transaction success!"
     })
 

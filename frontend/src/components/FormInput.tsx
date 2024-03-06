@@ -4,9 +4,9 @@ interface formInputType {
   type?: string;
   label: string;
   placeholder?: string;
-  value: string;
+  value: string | number;
   onchange: ChangeEventHandler<HTMLInputElement>;
-  error: string;
+  error?: string;
 }
 
 function FormInput({

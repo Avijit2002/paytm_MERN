@@ -1,13 +1,15 @@
 import React, { FormEventHandler } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface formType {
-  type: "sign up" | "sign in";
+  type: "sign up" | "sign in" | "send";
   handleSubmit: FormEventHandler;
   children: React.ReactNode;
 }
 
 function Form({ type, handleSubmit, children }: formType) {
+
+  const navigate = useNavigate()
   let heading;
   let subHeading;
   let footerLine;
@@ -29,6 +31,9 @@ function Form({ type, handleSubmit, children }: formType) {
       footerButton = "Sign up";
       footerButtonLink = "/signup";
       break;
+    case "sign in":
+      heading = "Send Money";
+      break;
     default:
       break;
   }
@@ -45,9 +50,13 @@ function Form({ type, handleSubmit, children }: formType) {
 
         {children}
 
+        
         <button className="text-xl mt-4 w-full bg-black font-semibold text-white py-4 rounded-lg hover:bg-gray-500">
           Submit
         </button>
+        {type=="send" &&  <button onClick={()=>{navigate("/")}} className="text-xl mt-4 w-full bg-black font-semibold text-white py-4 rounded-lg hover:bg-gray-500">
+          Cancel
+        </button>}
 
         {footerLine && (
           <h3 className="my-4 text-lg text-center">

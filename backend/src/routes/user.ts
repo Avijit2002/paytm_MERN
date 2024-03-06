@@ -44,6 +44,7 @@ router.post('/signup', asyncFunction(async (req, res, next) => {
         },
     })
     if (dbUser?.id) {
+        console.log("2")
         return res.status(responseStatus.incorrectInput).json({
             message: "Email already taken / Incorrect inputs"
         })
@@ -80,7 +81,7 @@ router.post('/signup', asyncFunction(async (req, res, next) => {
         message: "User created successfully",
         token: token
     })
-    //successApiResponse(responseStatus.success, token)
+    //successApiResponse(responseStatus.success, token) 
 }))
 
 router.post('/signin', asyncFunction(async (req, res, next) => {

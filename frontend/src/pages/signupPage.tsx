@@ -11,7 +11,10 @@ import { BACKEND_URL } from "../constants";
 import FormInput from "../components/FormInput";
 import Form from "../components/Form";
 
+import { useNavigate } from "react-router-dom";
+
 function SignupPage() {
+  const navigate = useNavigate()
  const [signUpData, setSignUpData] = useState<signupType>({
   firstname: "",
   lastname: "",
@@ -53,6 +56,7 @@ function SignupPage() {
       if(res.data.success){
         localStorage.setItem("token","Bearer "+ res.data.token)
         toast(res.data.message)
+        navigate("/")
       }else{
         toast(res.data.message)
       }

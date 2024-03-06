@@ -49,7 +49,7 @@ function SigninPage() {
         if (res.data.success) {
           localStorage.setItem("token", "Bearer " + res.data.token);
           toast(res.data.message);
-          navigate("/dashboard")
+          navigate("/")
         }
       } catch (error:any) {
         console.log(error)
