@@ -16,7 +16,7 @@ function SendMoney() {
   const [amount, setAmount] = useState(0);
   const navigate = useNavigate();
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, ] = useSearchParams();
   const to = searchParams.get("to");
 
   const data: transferType = {

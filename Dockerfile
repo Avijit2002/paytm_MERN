@@ -1,3 +1,13 @@
-FROM mongo:4.4.7
-RUN echo "rs.initiate();" > /docker-entrypoint-initdb.d/replica-init.js
-CMD [ "--replSet", "rs" ]
+FROM httpd:2.4 
+
+COPY ./frontend/dist/ /usr/local/apache2/htdocs/
+
+
+
+
+
+
+
+
+
+
