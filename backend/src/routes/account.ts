@@ -20,12 +20,12 @@ router.get('/balance', authmiddleware, asyncFunction(async (req: authRequest, re
         where: {
             id: req.userId
         },
-        select:{
+        select: {
             id: true,
-            username:true,
-            accounts:{
-                select:{
-                    balance:true
+            username: true,
+            accounts: {
+                select: {
+                    balance: true
                 }
             }
         }
@@ -34,8 +34,8 @@ router.get('/balance', authmiddleware, asyncFunction(async (req: authRequest, re
     console.log(user)
 
     res.status(responseStatus.success).json({
-        success:true,
-        data:user
+        success: true,
+        data: user
     })
 }))
 
@@ -101,7 +101,8 @@ router.post('/transfer', authmiddleware, asyncFunction(async (req: authRequest, 
             id: true,
             accounts: {
                 select: {
-                    id: true
+                    id: true,
+                    balance: true
                 }
             }
         }
@@ -112,6 +113,8 @@ router.post('/transfer', authmiddleware, asyncFunction(async (req: authRequest, 
             message: "Invalid Account"
         })
     }
+
+    console.log(senderUser.accounts[0].balance, receiverUser.accounts[0].balance)
 
     // https://www.prisma.io/docs/orm/prisma-client/queries/transactions
     // tx is a prisma client passed as an argument in callback 
@@ -133,7 +136,7 @@ router.post('/transfer', authmiddleware, asyncFunction(async (req: authRequest, 
                 throw new Error('insufficent balance')
             }
 
-            const receiver = tx.accounts.update({
+            const receiver = await tx.accounts.update({
                 data: {
                     balance: {
                         increment: body.amount
@@ -151,8 +154,10 @@ router.post('/transfer', authmiddleware, asyncFunction(async (req: authRequest, 
         })
     }
 
+
+
     return res.status(responseStatus.success).json({
-        success:true,
+        success: true,
         message: "Transaction success!"
     })
 
